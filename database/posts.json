@@ -1,0 +1,30 @@
+[
+    {
+        "title": "Lionel Messi",
+        "discription": "lorem ipsum",
+        "author": {
+            "username": "Shohijahon",
+            "firstName": "Musinkulov",
+            "email": "shohijahonmusinkulov@gmail.com",
+            "password": "82850406m",
+            "id": 1,
+            "date": "25.02.2024"
+        },
+        "user_id": 1,
+        "post_id": 1
+    },
+    {
+        "title": "leo",
+        "discription": "leo",
+        "author": {
+            "username": "Shohijahon",
+            "firstName": "Musinkulov",
+            "email": "shohijahonmusinkulov@gmail.com",
+            "password": "82850406m",
+            "id": 1,
+            "date": "25.02.2024"
+        },
+        "user_id": 1,
+        "post_id": 2
+    }
+]
