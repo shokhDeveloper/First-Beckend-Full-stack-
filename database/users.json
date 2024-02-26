@@ -4,7 +4,15 @@
         "firstName": "Musinkulov",
         "email": "shohijahonmusinkulov@gmail.com",
         "password": "82850406m",
-        "id": 1,    
+        "id": 1,
         "date": "25.02.2024"
+    },
+    {
+        "username": "Ronaldo",
+        "firstName": "Cristiano",
+        "email": "cristianoronaldo@gmail.com",
+        "password": "ronaldo",
+        "id": 2,
+        "date": "26.02.2024"
     }
 ]

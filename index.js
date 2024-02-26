@@ -51,14 +51,15 @@ const server = http.createServer(async (req, res) => {
           if (!users.some((item) => item.email == newUser.email)) {
             req.statusCode = 201;
             res.statusCode = 201;
-            res.end(
+            newUser = {        ...newUser,
+              id: users[users.length - 1].id + 1,
+              date: new Date().toLocaleDateString()}
+              users.push(newUser)
+              await fs.writeFile(path.join("database", "users.json"), JSON.stringify(users, null, 4))
+              res.end(
               JSON.stringify({
                 accessToken: createToken(),
-                user: {
-                  ...newUser,
-                  id: users[users.length - 1].id + 1,
-                  date: new Date().toLocaleDateString(),
-                },
+                user: newUser,
               })
             );
           } else {
@@ -200,7 +201,76 @@ const server = http.createServer(async (req, res) => {
     } else {
       res.end("Not found");
     }
-  } else {
+  } else if((req.method == "PUT" || req.method == "PATCH") && req.url.startsWith("/api/update/post/")){
+    res.setHeader("Content-type", "application/json")
+    let posts = await getData("posts")
+    let post = ''
+    let id = req.url.split("/").pop();
+    let postIndex = posts?.findIndex((item) => item.post_id == id)
+    req.on("data", (buffer) => {
+      post += buffer;
+    })
+    req.on("end", async () => {
+      post = JSON.parse(post)
+      if(post.title && post.discription && post.author){
+        posts[postIndex] = {...posts[postIndex], ...post, post_id: posts[postIndex].post_id, user_id: posts[postIndex].author.id}
+        await fs.writeFile(path.join("database", "posts.json"), JSON.stringify(posts, null, 4))
+        res.end(JSON.stringify({
+          message: "Updated post successfull",
+          post
+        }))
+      }else{
+        res.end(JSON.stringify({
+          message: "Post is invalid !"
+        }))
+      }
+    })
+  }else if(req.method == "GET" && req.url.startsWith("/user/posts/") ){
+    res.setHeader("Content-Type", "text/html")
+    res.end(await fs.readFile(path.join("frontend", "userPosts", "index.html")))
+  }else if(req.method == "GET" && req.url.startsWith("/user/api/posts/")){
+    res.setHeader("Content-type", "application/json")
+    const id = req.url.split("/").pop()
+    const posts = await getData("posts")
+    const userPosts = posts.filter((item) => item.user_id == id)
+    if(userPosts.length){
+      res.end(JSON.stringify(userPosts) )
+    }else{
+      res.end(JSON.stringify([]))
+    }
+  }else if(req.method == "GET" && req.url == "/account"){
+    res.setHeader("Content-Type", "text/html")
+    res.end(await fs.readFile(path.join("frontend", "account", "index.html")))
+  }else if(req.method == "GET" && req.url.startsWith(`/account/`)){
+    res.setHeader("Content-type", "application/json")
+    let id = req.url.split("/").pop()
+    let users = await getData("users")
+    let profileData = users.find((item) => item.id == id)
+    res.end(JSON.stringify(profileData))
+  }else if(req.method == "PUT" || req.method == "PATCH" && req.url.startsWith("/account/") ){
+    let newUser = ''
+    const id = req.url.split("/").pop()
+    let users = await getData("users")
+    let userIdx = users.findIndex((item) => item.id == id)
+    req.on("data", (buffer) => {
+      newUser += buffer
+    })
+    req.on("end", async () => {
+      newUser = JSON.parse(newUser)
+      if(newUser.email &&
+        newUser.username &&
+        newUser.firstName &&
+        newUser.password){
+          users[userIdx] = {...users[userIdx], ...newUser}
+          await fs.writeFile(path.join("database", "users.json"), JSON.stringify(users, null, 4))
+          res.end(JSON.stringify({
+            message: "Updated profile data",
+            newUser
+          }))
+        }
+    })
+  }
+  else {
     res.end("Not found leo");
   }
 });
