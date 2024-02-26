@@ -33,14 +33,54 @@
             </div>
         </div>
     </header>
-
+    <template >
+        <div class="post__data">
+            <h3>Title</h3>
+            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Fugiat adipisci libero dolore temporibus dicta recusandae earum neque sequi consequatur fuga rerum cupiditate rem ipsam repellendus, quisquam ab tenetur aliquam debitis?</p>
+            <a href="">Author = Shohijahon Musinkulov</a>
+        </div>
+    </template>
     <main>
         <section class="hero d-flex align-items-center  " style="min-height: 655px;">
             <div class="container">
                 <div class="hero__inner" >
                     <div class="hero__title-box w-100 text-center">
-                        <h1><span class="text-primary">Beckend App</span> </h1>
+                        <h1><span class="text-primary">Update post</span> </h1>
                     </div>
+                    <div class="post__data-box w-50 mx-auto text-center">
+                        
+                    </div>
+                    <div class="update__inner d-none mt-3">
+                        <div class="update__inner-form-box d-flex justify-content-center">
+                          <form
+                            class="login__inner-form w-50 text-center js-register-form"
+                            autocomplete="off"
+                          >
+                            <input
+                              class="form-control w-75 mx-auto"
+                              type="text"
+                              placeholder="Title"
+                              aria-label="Title"
+                              name="title"
+                              id="title"
+                              required
+                            />
+                            <input
+                              class="form-control w-75 mx-auto my-3"
+                              type="text"
+                              placeholder="Discription"
+                              aria-label="Discription"
+                              name="discription"
+                              id="discription"
+                              required
+                            />
+                            <button class="btn btn-primary">Send</button>
+                            <a class="d-block text-decoration-none mt-2" href="/posts"
+                              >All Posts</a
+                            >
+                          </form>
+                        </div>
+
                 </div>
             </div>
         </section>
@@ -50,23 +90,51 @@
         const token = window.localStorage.getItem("application-token") ? window.localStorage.getItem("application-token"): null;
         const user = window.localStorage.getItem("application-user") ? JSON.parse(window.localStorage.getItem("application-user")): null 
         const elLinks = document.querySelectorAll(".site__nav-link")
+        const elUpdateBox = document.querySelector(".update__inner")
+        const elForm = document.querySelector(".login__inner-form")
+        const elPostDataBox = document.querySelector(".post__data-box")
+        const elPostDataTemp = document.querySelector("template").content
         const handleToCheck = () => {
             if(!token && !user){
                 window.location.replace("/login")
             }
         }
         const id = window.location.href.split("/").pop()
+        const handleUpdateMyPost =  () => {
+            if(elUpdateBox.getAttribute("class").includes("d-none")){
+                elUpdateBox.classList.remove("d-none")
+        
+            }else{
+                elUpdateBox.classList.add("d-none")
+            }
+        }
+        const handleRenderPost = (arr) => {
+            if(arr?.length){
+                arr.forEach((item) => {
+                    const clone = elPostDataTemp.cloneNode(true)
+                    clone.querySelector("h3").textContent = item.title
+                    clone.querySelector("p").textContent = item.discription
+                    clone.querySelector("a").href = `/user/posts/${item.author.id}`
+                    elPostDataBox.appendChild(clone)
+                })
+            }
+        }
         const handleGetPost = async () => {
             try{
                 const req = await fetch(SERVER + `/api/post/${id}`)
                 if(req.ok){
                     const res = await req.json()
-                    consle.log(res)
+                    if(res.author.id == user.id){
+                        handleUpdateMyPost([res])
+                    }else{
+                        handleRenderPost([res])
+                    }
                 }    
             }catch(error){
                 console.log(error)
             }
         }
+        handleGetPost()
         const handleClick = (evt) => {
             if(token && user){
                 if(evt.target.textContent == "Home"){
@@ -81,6 +149,25 @@
         elLinks.forEach((item) => {
             item.addEventListener("click", handleClick)
         })
+        const handleSub = async (evt) => {
+            evt.preventDefault()
+            const req = await fetch(SERVER + `/api/update/post/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: title.value,
+                    discription: discription.value,
+                    author: user
+                })
+            })
+            if(req.status == 200){
+                const res = await req.json()
+                window.location.replace("/posts")
+            }
+        }
+        elForm.addEventListener("submit", handleSub)
         handleToCheck()
     </script>
 

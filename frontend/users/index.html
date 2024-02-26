@@ -37,6 +37,7 @@
         <li class="hero__inner-item">
             <h4>Name</h4>
             <span>email</span>
+            <a href=""></a>
         </li>
     </template>
     <main>
@@ -84,12 +85,18 @@
             if(arr?.length){
                 const docFragment = document.createDocumentFragment()
                 arr.forEach((item) => {
-                    const elUserItem = elItemTemp.cloneNode(true)
-                    elItemTemp.querySelector("h4").textContent = `${item.username} ${item.firstName}`
-                    elItemTemp.querySelector("span").textContent = `${item.email}`
-                    docFragment.appendChild(elItemTemp)
+                    const clone = elItemTemp.cloneNode(true)
+                    clone.querySelector("h4").textContent = `${item.username} ${item.firstName}`
+                    clone.querySelector("span").textContent = `${item.email}`
+                    let link = clone.querySelector("a")
+                    link.classList.add("d-block")
+                    link.href = `/user/posts/${item.id}`
+                    link.textContent = `${item.username} posts`
+                    
+                    docFragment.appendChild(clone)
                 })
                 elList.appendChild(docFragment)
+                console.log(elList)
             }
         }
         elLinks.forEach((item) => {

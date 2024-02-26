@@ -139,7 +139,7 @@
         console.log(req)
         if(req.status == 201 || req.status == 200){
           const res = await req.json()
-          console.log(res)
+          window.location.replace("/posts")
         }
     }
     elForm.addEventListener("submit", handleSub);
